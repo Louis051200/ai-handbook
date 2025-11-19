@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>师夷长技以制夷 - AI 工具链部署手册</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --text: #0f172a;
+            --text-sub: #64748b;
+            --border: #e2e8f0;
+            --accent-gold: #d97706;
+            --danger-bg: #fef2f2;
+            --danger-text: #991b1b;
+            --step-bg: #eff6ff;
+            --divider: #cbd5e1;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 15px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 720px;
+            margin: 0 auto;
+            padding-bottom: 80px;
+        }
+
+        header { text-align: center; margin: 20px 0 30px; }
+        h1 { margin: 0; font-size: 1.6rem; font-weight: 800; }
+        .subtitle { color: var(--text-sub); font-size: 0.9rem; margin-top: 5px; }
+
+        /* 导航 Tabs */
+        .nav-tabs {
+            display: flex;
+            background: #e2e8f0;
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 20px;
+            gap: 5px;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-sub);
+            transition: all 0.2s;
+        }
+        .tab-btn.active {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        /* 内容区域 */
+        .tab-content { display: none; animation: fadeIn 0.3s ease; }
+        .tab-content.active { display: block; }
+
+        .card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+        }
+
+        .card-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-badge {
+            background: var(--primary);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+
+        .btn-group { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 14px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .btn:hover { opacity: 0.9; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-gold { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
+        .btn-outline { background: white; border: 1px solid var(--border); color: var(--text); }
+        .btn-video { background: #ff516d; color: white; }
+        .btn-dark { background: #1e293b; color: white; }
+
+        .input-box {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+
+        .tag-rec { background: #dbeafe; color: #1e40af; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        
+        /* 教程列表样式 (v7.0) */
+        .tutorial-list {
+            counter-reset: step;
+            padding: 0;
+            margin: 0;
+            list-style: none;
+        }
+        .tutorial-list li {
+            position: relative;
+            padding-left: 35px;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+            color: #334155;
+        }
+        .tutorial-list li::before {
+            counter-increment: step;
+            content: counter(step);
+            position: absolute;
+            left: 0;
+            top: 2px;
+            width: 24px;
+            height: 24px;
+            background: var(--step-bg);
+            color: var(--primary);
+            border-radius: 50%;
+            text-align: center;
+            line-height: 24px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        /* 分割线标题 */
+        .divider-title {
+            display: flex;
+            align-items: center;
+            margin: 30px 0 20px;
+            color: var(--text-sub);
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        .divider-title::before, .divider-title::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: var(--divider);
+        }
+        .divider-title span { padding: 0 15px; }
+        
+        .warn-list li { margin-bottom: 6px; }
+        strong { color: #0f172a; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>🔭 师夷长技以制夷</h1>
+        <p class="subtitle">AI 工具链部署手册 2025.11.20</p>
+    </header>
+
+    <div class="nav-tabs">
+        <button class="tab-btn active" onclick="openTab(event, 'main')">Part 1 核心攻略</button>
+        <button class="tab-btn" onclick="openTab(event, 'account')">Part 2 账号支付</button>
+        <button class="tab-btn" onclick="openTab(event, 'tools')">Part 3 其他神器</button>
+    </div>
+
+    <!-- TAB 1: 核心攻略 (AI + 网络) -->
+    <div id="main" class="tab-content active">
+        
+        <!-- SECTION: 避坑警告 -->
+        <div class="card" style="background: var(--danger-bg); border-color: #fca5a5;">
+            <div class="card-title" style="color: var(--danger-text);">🚫 为什么拒绝“AI 中转/套壳站”？</div>
+            <p style="font-size:0.85rem; color:#7f1d1d; margin-bottom:10px;">市面上有很多二道贩子提供的聚合站，核心问题如下：</p>
+            <ul class="warn-list" style="font-size:0.85rem; color:#991b1b; padding-left:20px; margin:0;">
+                <li><strong>功能阉割：</strong>无法使用最新的 o1 推理、高级语音、Canvas 画布等核心功能。</li>
+                <li><strong>安全隐患：</strong>你的私有资料、上传的文档可能面临严重的泄露风险。</li>
+                <li><strong>体验降级：</strong>为省成本，中转站往往使用老旧模型，响应速度极慢。</li>
+            </ul>
+        </div>
+
+        <!-- SECTION: 转型口号 -->
+        <div style="text-align:center; margin: 25px 0; font-weight:800; color: var(--primary); font-size:1.1rem; letter-spacing: 1px;">
+            👇 继续向下看：告别安卓 AI，拥抱苹果 AI 👇
+        </div>
+
+        <!-- SECTION: 海外双雄 -->
+        <div class="card">
+            <div class="card-title">🌍 海外双雄 <span class="tag-rec">强力推荐</span></div>
+            <p style="font-size:0.85rem; color:#64748b;">
+                <a href="https://www.bilibili.com/video/BV1tbWvz9E3a" target="_blank" style="color:#2563eb; text-decoration:none;">📺 B站攻略：海外AI选择</a>
+            </p>
+
+            <div style="margin-top:15px; padding-bottom:15px; border-bottom:1px dashed #e2e8f0;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <strong>1. ChatGPT (OpenAI)</strong>
+                    <a href="https://chatgpt.com" target="_blank" class="btn btn-primary" style="padding:4px 10px; font-size:0.75rem;">官网 →</a>
+                </div>
+                <p style="font-size:0.85rem; color:#475569; margin:5px 0;">Sora 2 视频能力第一。推荐 iOS 用户。</p>
+            </div>
+
+            <div style="margin-top:15px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <strong>2. Google Gemini</strong>
+                    <a href="https://gemini.google.com" target="_blank" class="btn btn-primary" style="padding:4px 10px; font-size:0.75rem;">官网 →</a>
+                </div>
+                <p style="font-size:0.85rem; color:#475569; margin:5px 0;">Nano Banana 生图第一，文档分析极强。</p>
+            </div>
+        </div>
+
+        <!-- 分割线 -->
+        <div class="divider-title"><span>👇 网络基建 (使用海外AI必备) 👇</span></div>
+
+        <!-- SECTION: 网络基建 -->
+        <div class="card" style="border-left: 5px solid var(--primary);">
+            <div class="card-title"><span class="section-badge">Step 1</span> 获取 GLaDOS 账号</div>
+            <p style="font-size:0.9rem; color:#64748b;">要求：必须翻墙且 IP 定位在美国。</p>
+            <div style="background:#f8fafc; padding:10px; border-radius:8px; margin-bottom:10px;">
+                <span style="color:#64748b; font-size:0.85rem;">邀请码:</span> 
+                <strong id="inviteCode" style="color:var(--accent-gold); font-family:monospace;">WQ4MJ-ZCLMQ-X05LR-4AEO2</strong>
+                <button class="btn-outline" style="padding:2px 8px; font-size:0.75rem; margin-left:10px;" onclick="copyText('inviteCode')">复制</button>
+            </div>
+            <a href="https://glados.rocks/console" target="_blank" class="btn btn-primary" style="width:100%">👉 前往 GLaDOS 注册</a>
+        </div>
+
+        <div class="card" style="border-left: 5px solid var(--primary);">
+            <div class="card-title"><span class="section-badge">Step 2</span> 下载客户端</div>
+            <div class="grid-2">
+                <!-- PC/安卓 -->
+                <div style="background:#f8fafc; padding:12px; border-radius:8px;">
+                    <strong>💻 PC / 安卓</strong><br>
+                    <span style="font-size:0.75rem; color:#64748b;">Clash / v2rayN</span>
+                    <a href="https://glados.rocks/console" target="_blank" class="btn btn-outline" style="width:100%; margin-top:8px; font-size:0.8rem;">GLaDOS 控制台下载</a>
+                </div>
+                <!-- iOS -->
+                <div style="background:#f8fafc; padding:12px; border-radius:8px;">
+                    <strong>🍎 iOS (美区)</strong>
+                    <div style="margin-top:8px; padding-bottom:8px; border-bottom:1px solid #e2e8f0;">
+                        <div style="display:flex; justify-content:space-between; font-size:0.75rem;">
+                            <span>Shadowrocket</span>
+                            <span style="color:#d97706;">$2.99</span>
+                        </div>
+                        <a href="https://apps.apple.com/us/app/shadowrocket/id932747118" target="_blank" class="btn btn-outline" style="width:100%; font-size:0.75rem; padding:4px 0; margin-top:4px;">下载小火箭</a>
+                    </div>
+                    <div style="margin-top:8px;">
+                        <div style="display:flex; justify-content:space-between; font-size:0.75rem;">
+                            <span>Sing-box</span>
+                            <span style="color:#10b981;">免费</span>
+                        </div>
+                        <a href="https://apps.apple.com/us/app/sing-box-vt/id6673731168" target="_blank" class="btn btn-outline" style="width:100%; font-size:0.75rem; padding:4px 0; margin-top:4px;">下载 Sing-box</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="border-left: 5px solid var(--primary);">
+            <div class="card-title"><span class="section-badge">Step 3</span> 一键配置</div>
+            <input type="text" id="subLink" class="input-box" placeholder="在此粘贴 GLaDOS 订阅链接...">
+            <div class="btn-group">
+                <button class="btn btn-primary" onclick="importConfig('clash')">🚀 导入 Clash</button>
+                <button class="btn btn-primary" onclick="importConfig('shadowrocket')">📱 导入小火箭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TAB 2: 账号与支付 (Part 2 - 回退至 v7.0) -->
+    <div id="account" class="tab-content">
+        <!-- Gemini 注册 -->
+        <div class="card">
+            <div class="card-title">🤖 Gemini 注册技巧 (0成本)</div>
+            <div style="background:#ecfdf5; padding:12px; border-radius:8px; border:1px solid #a7f3d0;">
+                <strong>📲 手机注册法：</strong>
+                <ol style="margin:5px 0; padding-left:20px; font-size:0.9rem; color:#047857;">
+                    <li>手机开启梯子，<strong>必须选择美国节点</strong>。</li>
+                    <li>直接访问 Gemini 官网注册 Google 账号。</li>
+                    <li>通常可跳过手机号验证，直接开通。</li>
+                </ol>
+            </div>
+            <p style="margin-top:10px; font-size:0.85rem; color:#64748b;">
+                *省钱方案：闲鱼搜“Gemini 印度学生账号” (约¥18.8/年)
+            </p>
+        </div>
+
+        <!-- Apple ID 注册 (完整保姆级教程) -->
+        <div class="card">
+            <div class="card-title">🍎 美区 Apple ID 注册 (保姆级)</div>
+            <p style="font-size:0.8rem; color:#64748b; margin-top:-5px;">无需信用卡 · 无需美国手机 · 100%成功</p>
+            
+            <div style="background:#fff; border:1px solid #e2e8f0; border-radius:8px; padding:15px; margin-bottom:15px;">
+                <ol class="tutorial-list">
+                    <li>
+                        <strong>访问注册页</strong><br>
+                        浏览器打开 <a href="https://appleid.apple.com" target="_blank" style="color:#2563eb;">appleid.apple.com</a>，点击右上角“创建您的 Apple ID”。使用未注册过的邮箱(Gmail最佳)。
+                    </li>
+                    <li>
+                        <strong>填写核心信息</strong><br>
+                        国家/地区务必选择<strong>「美国」</strong>。生日填 >18岁。手机号填<strong>国内号码(+86)</strong>即可。
+                    </li>
+                    <li>
+                        <strong>双重验证</strong><br>
+                        依次输入邮箱验证码和短信验证码。
+                    </li>
+                    <li>
+                        <strong>App Store 登录 (❌不要在设置里登)</strong><br>
+                        打开 App Store，登录新账号。首次登录会弹出“检查账户信息”，点击<strong>「检查」</strong>。
+                    </li>
+                    <li>
+                        <strong>同意条款与付款</strong><br>
+                        打开“同意条款”开关。付款方式必须选择<strong>「无 (None)」</strong>。
+                    </li>
+                    <li>
+                        <strong>生成美国免税地址</strong><br>
+                        打开 <a href="https://www.meiguodizhi.com" target="_blank" style="color:#2563eb;">meiguodizhi.com</a>，选择“俄勒冈州”或“特拉华州”(免税)。复制生成的地址、城市、邮编、电话。
+                    </li>
+                    <li>
+                        <strong>完成设置</strong><br>
+                        将地址粘贴到 App Store，点击“下一页”。完成！现在可以去下载 ChatGPT 了。
+                    </li>
+                </ol>
+            </div>
+
+            <div class="card-title" style="font-size:0.95rem;">💰 搞定支付 (充值 Plus)</div>
+            <a href="https://www.youtube.com/watch?v=n6qHv9GGCbQ&t=240s" target="_blank" class="btn btn-video" style="width:100%">📺 观看充值教程 (美区礼品卡)</a>
+        </div>
+
+        <!-- 信用卡 -->
+        <div class="card" style="border-color: #d97706;">
+            <div class="card-title" style="color: #b45309;">💳 支付终极方案</div>
+            <p style="font-size:0.9rem;">推荐办理：<strong>招商银行 VISA 全币种信用卡</strong></p>
+            <ul style="font-size:0.85rem; color:#64748b; padding-left:20px;">
+                <li>✅ 绑定 Google Pay / OpenAI</li>
+                <li>✅ 免1.5%货币转换费</li>
+                <li>✅ 人民币直接还款</li>
+            </ul>
+            <a href="https://market.cmbchina.com/ccard/wap/mp/index.html" target="_blank" class="btn btn-gold" style="width:100%">👉 招行官网申请</a>
+        </div>
+    </div>
+
+    <!-- TAB 3: 其他神器 (Part 3) -->
+    <div id="tools" class="tab-content">
+        <!-- NotebookLM -->
+        <div class="card">
+            <div class="card-title">📚 NotebookLM (Google)</div>
+            <p style="font-size:0.85rem; color:#64748b;">学习神器。投喂 YouTube 视频链接或 PDF，AI 帮你总结。</p>
+            <a href="https://notebooklm.google.com/" target="_blank" class="btn btn-outline">🔗 访问 NotebookLM</a>
+        </div>
+
+        <!-- SORA -->
+        <div class="card">
+            <div class="card-title">🎬 SORA Chat</div>
+            <p style="font-size:0.85rem; color:#64748b;">共享 GPT 会员，简单的 AI 视频生成体验。</p>
+            <a href="https://sora.chatgpt.com/" target="_blank" class="btn btn-outline">🔗 访问 Sora Chat</a>
+        </div>
+
+        <!-- Antigravity -->
+        <div class="card" style="border:1px solid #3b82f6;">
+            <div class="card-title">🚀 Google Antigravity (Gemini 3.0 IDE)</div>
+            <p style="font-size:0.85rem; margin-bottom:15px;">免费调用 Gemini 3.0 的代码编辑器。</p>
+            
+            <!-- 按钮与下方提示语 -->
+            <a href="https://antigravity.google/" target="_blank" class="btn btn-primary" style="width:100%; margin-bottom:10px;">🔗 访问 Antigravity</a>
+            <div style="text-align:center; margin-bottom:15px;">
+                <span style="font-size:0.8rem; color:#64748b; background:#f1f5f9; padding:4px 10px; border-radius:20px;">↓ 如遇登录卡住请看下方解决方案 ↓</span>
+            </div>
+
+            <div style="background:#f8fafc; padding:15px; border-radius:8px; border-top:2px solid #cbd5e1;">
+                <strong style="font-size:0.9rem;">🔧 登录卡顿/失败 解决方案：</strong>
+                
+                <!-- 方案1: 改语言 -->
+                <div style="margin-top:15px;">
+                    <div style="font-size:0.85rem; font-weight:bold; margin-bottom:5px;">Step 1: 更改系统语言为 English (US)</div>
+                    <div class="btn-group">
+                        <button class="btn btn-dark" onclick="alert('【Windows 操作】\n1. 打开设置 (Settings) > 时间和语言\n2. 语言和区域 > Windows 显示语言\n3. 选择 English (United States)\n4. 注销并重启电脑')">🪟 Windows 指引</button>
+                        <button class="btn btn-dark" onclick="alert('【Mac 操作】\n1. 打开系统设置 (System Settings)\n2. 通用 (General) > 语言与地区\n3. 将 English (US) 拖动到首选语言列表第一位\n4. 重启电脑')">🍎 Mac 指引</button>
+                    </div>
+                </div>
+
+                <!-- 方案2: 开启全局+TUN -->
+                <div style="margin-top:15px;">
+                    <div style="font-size:0.85rem; font-weight:bold; margin-bottom:5px;">Step 2: 开启 TUN 模式 + 全局代理</div>
+                    <div style="font-size:0.75rem; color:#ef4444; margin-bottom:5px;">*节点推荐：新加坡、日本、美国</div>
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="alert('【Clash 开启全局+TUN 指引】\n\n1. 打开 Clash Verge/CFW 面板\n2. 点击左侧【设置 (Settings)】\n3. 找到【TUN 模式】开关并打开 (可能需要管理员权限)\n4. 点击左侧【代理 (Proxies)】\n5. 在顶部模式中选择【全局 (Global)】\n6. 选择一个美国或日本节点')">🟢 开启 全局+TUN 模式</button>
+                        <button class="btn btn-outline" onclick="alert('【回退设置指引】\n\n1. 回到【代理 (Proxies)】界面\n2. 模式切换回【规则 (Rule)】\n3. 回到【设置】关闭【TUN 模式】\n4. 恢复正常上网')">⚪️ 回退到 规则模式</button>
+                    </div>
+                </div>
+
+                <!-- 方案3: 重启 -->
+                <div style="margin-top:15px;">
+                    <div style="font-size:0.85rem; font-weight:bold;">Step 3: 重启 Antigravity 并重新登录</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer style="text-align:center; margin-top:30px; color:#94a3b8; font-size:0.75rem;">
+        页面仅供个人学习整理 · 请遵守相关法律法规
+    </footer>
+</div>
+
+<script>
+    function openTab(evt, tabId) {
+        var tabContents = document.getElementsByClassName("tab-content");
+        for (var i = 0; i < tabContents.length; i++) {
+            tabContents[i].style.display = "none";
+            tabContents[i].classList.remove("active");
+        }
+        var tabLinks = document.getElementsByClassName("tab-btn");
+        for (var i = 0; i < tabLinks.length; i++) {
+            tabLinks[i].className = tabLinks[i].className.replace(" active", "");
+        }
+        document.getElementById(tabId).style.display = "block";
+        setTimeout(() => {
+             document.getElementById(tabId).classList.add("active");
+        }, 10);
+        evt.currentTarget.className += " active";
+    }
+
+    function copyText(elementId) {
+        var text = document.getElementById(elementId).innerText;
+        navigator.clipboard.writeText(text).then(function() { alert("复制成功！"); }, function() { alert("复制失败"); });
+    }
+
+    function importConfig(type) {
+        var link = document.getElementById('subLink').value;
+        if (!link) { alert("请先粘贴 GLaDOS 订阅链接！"); return; }
+        link = link.trim();
+        var url = "";
+        if (type === 'clash') {
+            url = "clash://install-config?url=" + encodeURIComponent(link) + "&name=GLaDOS-US";
+        } else if (type === 'shadowrocket') {
+            url = "shadowrocket://add/" + link;
+        }
+        window.location.href = url;
+    }
+</script>
+
+</body>
+</html>
